@@ -26,9 +26,9 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
     type: 'request',
     method,
     url,
-    query: Object.keys(query).length > 0 ? query : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-    body: method !== 'GET' && Object.keys(body).length > 0 ? sanitizeBody(body) : undefined,
+    query: query && Object.keys(query).length > 0 ? query : undefined,
+    params: params && Object.keys(params).length > 0 ? params : undefined,
+    body: method !== 'GET' && body && Object.keys(body).length > 0 ? sanitizeBody(body) : undefined,
   }, `📥 ${method} ${url}`);
 
   // Log response
