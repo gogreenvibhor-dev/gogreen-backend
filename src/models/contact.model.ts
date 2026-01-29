@@ -6,7 +6,8 @@ export interface ContactSubmission {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
+  countryCode: string;
+  phone: string;
   message: string;
   status: string;
   createdAt: Date;
@@ -16,13 +17,11 @@ export class ContactModel {
   static async create(data: {
     name: string;
     email: string;
-    phone?: string | undefined;
+    countryCode: string;
+    phone: string;
     message: string;
   }): Promise<ContactSubmission> {
-    const result = await db.insert(contactSubmissions).values({
-      ...data,
-      phone: data.phone || null
-    }).returning();
+    const result = await db.insert(contactSubmissions).values(data).returning();
     return result[0]!;
   }
 

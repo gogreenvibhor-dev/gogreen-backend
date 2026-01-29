@@ -30,7 +30,21 @@ app.use(requestLogger);
 
 // CORS configuration (adjust for your frontend URL)
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:3000') ;
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'https://gogreen-frontend.vercel.app'
+  ].filter(Boolean).map(origin => origin?.replace(/\/$/, '')); // Remove trailing slashes
+  
+  const origin = req.headers.origin?.replace(/\/$/, ''); // Remove trailing slash from request origin
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (!req.headers.origin) {
+    // Allow requests with no origin (e.g., mobile apps, Postman)
+    res.header('Access-Control-Allow-Origin', allowedOrigins[0] || 'http://localhost:3000');
+  }
+  
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');

@@ -8,10 +8,10 @@ import { ActionType } from '../types/auth.js';
 const router: IRouter = Router();
 
 const contactSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  name: z.string().min(1),
   email: z.string().email(),
-  phone: z.string().optional(),
+  countryCode: z.string().min(1).regex(/^\+?[1-9]\d{0,3}$/, 'Invalid country code'),
+  phone: z.string().min(1).regex(/^[0-9]{7,15}$/, 'Phone number must be 7-15 digits'),
   message: z.string().min(1),
 });
 
@@ -19,11 +19,11 @@ const contactSchema = z.object({
 router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const data = contactSchema.parse(req.body);
-    const fullName = `${data.firstName} ${data.lastName}`;
     
     await ContactModel.create({
-      name: fullName,
+      name: data.name,
       email: data.email,
+      countryCode: data.countryCode,
       phone: data.phone,
       message: data.message
     });

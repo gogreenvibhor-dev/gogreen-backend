@@ -193,7 +193,8 @@ export const contactSubmissions = pgTable('contact_submissions', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull(),
-  phone: varchar('phone', { length: 50 }),
+  countryCode: varchar('country_code', { length: 10 }).notNull(),
+  phone: varchar('phone', { length: 50 }).notNull(),
   message: text('message').notNull(),
   status: varchar('status', { length: 50 }).notNull().default('new'), // new, read, archived
   createdAt: timestamp('created_at').defaultNow().notNull(),
