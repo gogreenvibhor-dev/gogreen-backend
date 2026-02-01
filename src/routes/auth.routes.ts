@@ -56,7 +56,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       httpOnly: config.cookie.httpOnly,
       secure: config.cookie.secure,
       sameSite: config.cookie.sameSite,
-      maxAge: config.cookie.maxAge
+      maxAge: config.cookie.maxAge,
+      path: config.cookie.path
     });
 
     res.json({
@@ -79,7 +80,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
 // Logout endpoint
 router.post('/logout', (req: Request, res: Response): void => {
-  res.clearCookie(config.cookie.name);
+  res.clearCookie(config.cookie.name, {
+    httpOnly: config.cookie.httpOnly,
+    secure: config.cookie.secure,
+    sameSite: config.cookie.sameSite,
+    path: config.cookie.path
+  });
   res.json({ message: 'Logout successful' });
 });
 
