@@ -9,6 +9,7 @@ export const CellSchema = z.object({
   align: z.enum(['left', 'center', 'right']).optional().default('center'),
   isHeader: z.boolean().optional(), // If true, renders as <th>
   className: z.string().optional(), // Custom CSS classes
+  backgroundColor: z.string().optional(), // Background color for the cell
 });
 
 // The full table structure supporting complex layouts
@@ -17,28 +18,25 @@ export const TableDataSchema = z.object({
   headers: z.array(z.array(CellSchema)),
   // Body is standard rows
   rows: z.array(z.array(CellSchema)),
+  // Optional description for the table or pointer descriptions
+  description: z.string().optional(),
 });
 
-// Chart data structure for visualization
-export const ChartDataSchema = z.object({
-  type: z.enum(['line', 'bar', 'pie', 'area']),
-  labels: z.array(z.string()),
-  datasets: z.array(z.object({
-    label: z.string(),
-    data: z.array(z.number()),
-    backgroundColor: z.string().optional(),
-    borderColor: z.string().optional(),
-  })),
+// Image data structure for specification images
+export const ImageDataSchema = z.object({
+  imageUrl: z.string(),
+  altText: z.string().optional(),
+  description: z.string().optional(),
 });
 
 // Union type for different specification content types
 export const SpecificationContentSchema = z.union([
   TableDataSchema,
-  ChartDataSchema,
+  ImageDataSchema,
 ]);
 
 // Type exports
 export type TableCell = z.infer<typeof CellSchema>;
 export type TableData = z.infer<typeof TableDataSchema>;
-export type ChartData = z.infer<typeof ChartDataSchema>;
+export type ImageData = z.infer<typeof ImageDataSchema>;
 export type SpecificationContent = z.infer<typeof SpecificationContentSchema>;

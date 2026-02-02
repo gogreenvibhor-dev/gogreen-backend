@@ -143,6 +143,49 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: 
   }
 });
 
+// Toggle subcategory active status (Admin only) - MUST BE BEFORE /:id route
+router.patch('/:id/toggle', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' });
+      return;
+    }
+    
+    const { id } = req.params;
+    
+    if (!id) {
+      res.status(400).json({ error: 'Subcategory ID is required' });
+      return;
+    }
+    
+    const { isActive } = req.body;
+    
+    const success = await SubcategoryModel.toggleActive(id, isActive);
+    
+    if (!success) {
+      res.status(404).json({ error: 'Subcategory not found' });
+      return;
+    }
+    
+    // Log the action
+    await AuditLogModel.create({
+      userId: req.user.userId,
+      action: ActionType.UPDATE,
+      resourceType: 'subcategory',
+      resourceId: id,
+      details: { action: isActive ? 'activated' : 'deactivated' },
+    });
+    
+    res.json({
+      success: true,
+      message: `Subcategory ${isActive ? 'activated' : 'deactivated'} successfully`,
+    });
+  } catch (error) {
+    console.error('Toggle subcategory error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Update subcategory (Admin only)
 const updateSubcategorySchema = z.object({
   categoryId: z.string().min(1).optional(),
@@ -205,49 +248,6 @@ router.patch('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, r
       return;
     }
     console.error('Update subcategory error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Toggle subcategory active status (Admin only)
-router.patch('/:id/toggle', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ error: 'Not authenticated' });
-      return;
-    }
-    
-    const { id } = req.params;
-    
-    if (!id) {
-      res.status(400).json({ error: 'Subcategory ID is required' });
-      return;
-    }
-    
-    const { isActive } = req.body;
-    
-    const success = await SubcategoryModel.toggleActive(id, isActive);
-    
-    if (!success) {
-      res.status(404).json({ error: 'Subcategory not found' });
-      return;
-    }
-    
-    // Log the action
-    await AuditLogModel.create({
-      userId: req.user.userId,
-      action: ActionType.UPDATE,
-      resourceType: 'subcategory',
-      resourceId: id,
-      details: { action: isActive ? 'activated' : 'deactivated' },
-    });
-    
-    res.json({
-      success: true,
-      message: `Subcategory ${isActive ? 'activated' : 'deactivated'} successfully`,
-    });
-  } catch (error) {
-    console.error('Toggle subcategory error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

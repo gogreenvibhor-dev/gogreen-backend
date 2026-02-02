@@ -65,6 +65,8 @@ export const products = pgTable('products', {
   specifications: json('specifications'),
   features: json('features').$type<string[]>(),
   seoKeywords: json('seo_keywords').$type<string[]>(),
+  // Static page URL - links to existing static product pages in the Next.js app
+  staticPageUrl: varchar('static_page_url', { length: 500 }),
   displayOrder: varchar('display_order', { length: 10 }),
   isActive: boolean('is_active').notNull().default(true),
   isFeatured: boolean('is_featured').notNull().default(false),
@@ -113,7 +115,7 @@ export const productSpecifications = pgTable('product_specifications', {
   id: uuid('id').primaryKey().defaultRandom(),
   productId: uuid('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 255 }).notNull(),
-  // 'grid' = standard table, 'matrix' = complex merged headers, 'chart' = chart data
+  // 'grid' = standard table, 'matrix' = complex merged headers, 'image' = specification image
   type: varchar('type', { length: 50 }).notNull().default('grid'),
   // JSONB column for flexible table structure (headers, rows, merged cells)
   content: jsonb('content').notNull(),
@@ -177,7 +179,7 @@ export const posts = pgTable('posts', {
   seoKeywords: json('seo_keywords').$type<string[]>(),
   published: boolean('published').default(false),
   publishedAt: timestamp('published_at'),
-  createdAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
@@ -225,3 +227,16 @@ export const analytics = pgTable('analytics', {
 
 export type AnalyticsEntry = typeof analytics.$inferSelect;
 export type NewAnalyticsEntry = typeof analytics.$inferInsert;
+
+// YouTube videos table for homepage videos section
+export const youtubeVideos = pgTable('youtube_videos', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  youtubeUrl: varchar('youtube_url', { length: 500 }).notNull(),
+  displayOrder: integer('display_order').notNull().default(0),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type YoutubeVideo = typeof youtubeVideos.$inferSelect;
+export type NewYoutubeVideo = typeof youtubeVideos.$inferInsert;

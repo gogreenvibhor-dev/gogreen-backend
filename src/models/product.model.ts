@@ -14,6 +14,8 @@ export interface Product {
   pdfUrl: string | null;
   specifications: any | null;
   features: string[] | null;
+  seoKeywords: string[] | null;
+  staticPageUrl: string | null;
   displayOrder: string | null;
   isActive: boolean;
   isFeatured: boolean;
@@ -33,6 +35,8 @@ export class ProductModel {
     pdfUrl?: string | undefined;
     specifications?: any;
     features?: string[] | undefined;
+    seoKeywords?: string[] | undefined;
+    staticPageUrl?: string | undefined;
     displayOrder?: string | undefined;
     isFeatured?: boolean | undefined;
   }): Promise<Product> {

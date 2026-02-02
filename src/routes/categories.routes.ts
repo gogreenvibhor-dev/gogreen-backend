@@ -135,6 +135,49 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: 
   }
 });
 
+// Toggle category active status (Admin only) - MUST BE BEFORE /:id route
+router.patch('/:id/toggle', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' });
+      return;
+    }
+    
+    const { id } = req.params;
+    
+    if (!id) {
+      res.status(400).json({ error: 'Category ID is required' });
+      return;
+    }
+    
+    const { isActive } = req.body;
+    
+    const success = await CategoryModel.toggleActive(id, isActive);
+    
+    if (!success) {
+      res.status(404).json({ error: 'Category not found' });
+      return;
+    }
+    
+    // Log the action
+    await AuditLogModel.create({
+      userId: req.user.userId,
+      action: ActionType.UPDATE,
+      resourceType: 'category',
+      resourceId: id,
+      details: { action: isActive ? 'activated' : 'deactivated' },
+    });
+    
+    res.json({
+      success: true,
+      message: `Category ${isActive ? 'activated' : 'deactivated'} successfully`,
+    });
+  } catch (error) {
+    console.error('Toggle category error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Update category (Admin only)
 const updateCategorySchema = z.object({
   name: z.string().min(1).optional(),
@@ -196,49 +239,6 @@ router.patch('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, r
       return;
     }
     console.error('Update category error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Toggle category active status (Admin only)
-router.patch('/:id/toggle', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ error: 'Not authenticated' });
-      return;
-    }
-    
-    const { id } = req.params;
-    
-    if (!id) {
-      res.status(400).json({ error: 'Category ID is required' });
-      return;
-    }
-    
-    const { isActive } = req.body;
-    
-    const success = await CategoryModel.toggleActive(id, isActive);
-    
-    if (!success) {
-      res.status(404).json({ error: 'Category not found' });
-      return;
-    }
-    
-    // Log the action
-    await AuditLogModel.create({
-      userId: req.user.userId,
-      action: ActionType.UPDATE,
-      resourceType: 'category',
-      resourceId: id,
-      details: { action: isActive ? 'activated' : 'deactivated' },
-    });
-    
-    res.json({
-      success: true,
-      message: `Category ${isActive ? 'activated' : 'deactivated'} successfully`,
-    });
-  } catch (error) {
-    console.error('Toggle category error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

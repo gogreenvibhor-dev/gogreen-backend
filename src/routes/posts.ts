@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
 // GET single post by slug or ID
 router.get('/:identifier', async (req, res) => {
   try {
-    const identifier = req.params.identifier;
+    const identifier = req.params.identifier!;
     let post;
     
     // Check if identifier is numeric (ID) or string (slug)
@@ -113,19 +113,38 @@ router.post('/', authenticateToken, requireEditor, async (req, res) => {
   }
 });
 
-// PUT update post
-router.put('/:id', authenticateToken, requireEditor, async (req, res) => {
+// PUT update post (supports both ID and slug)
+router.put('/:identifier', authenticateToken, requireEditor, async (req, res) => {
   try {
-    const id = parseInt(req.params.id || '0');
+    const identifier = req.params.identifier!;
     const body = updatePostSchema.parse(req.body);
     
-    // Check slug uniqueness if provided
-    if (body.slug) {
-       const slugToCheck = body.slug;
-       const existing = await db.query.posts.findFirst({
-        where: eq(posts.slug, slugToCheck),
+    // Find the post first by ID or slug
+    let existingPost;
+    if (/^\d+$/.test(identifier)) {
+      // It's an ID
+      const id = parseInt(identifier);
+      existingPost = await db.query.posts.findFirst({
+        where: eq(posts.id, id),
       });
-      if (existing && existing.id !== id) {
+    } else {
+      // It's a slug
+      existingPost = await db.query.posts.findFirst({
+        where: eq(posts.slug, identifier),
+      });
+    }
+    
+    if (!existingPost) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+    
+    // Check slug uniqueness if slug is being changed
+    if (body.slug && body.slug !== existingPost.slug) {
+       const slugExists = await db.query.posts.findFirst({
+        where: eq(posts.slug, body.slug),
+      });
+      if (slugExists) {
         res.status(400).json({ error: 'Slug already exists' });
         return;
       }
@@ -137,7 +156,7 @@ router.put('/:id', authenticateToken, requireEditor, async (req, res) => {
         updatedAt: new Date(),
         publishedAt: body.published === true ? new Date() : undefined,
       })
-      .where(eq(posts.id, id))
+      .where(eq(posts.id, existingPost.id))
       .returning();
       
     res.json(updatedPost);
@@ -145,6 +164,7 @@ router.put('/:id', authenticateToken, requireEditor, async (req, res) => {
      if (error instanceof z.ZodError) {
       res.status(400).json({ error: error.issues }); 
     } else {
+      console.error('Update post error:', error);
       res.status(500).json({ error: 'Failed to update post' });
     }
   }

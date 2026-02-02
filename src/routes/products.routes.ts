@@ -127,6 +127,8 @@ const createProductSchema = z.object({
   pdfUrl: z.string().optional(),
   specifications: z.any().optional(),
   features: z.array(z.string()).optional(),
+  seoKeywords: z.array(z.string()).optional(),
+  staticPageUrl: z.string().optional(),
   displayOrder: z.string().optional(),
   isFeatured: z.boolean().optional(),
 });
@@ -185,6 +187,8 @@ const updateProductSchema = z.object({
   pdfUrl: z.string().optional(),
   specifications: z.any().optional(),
   features: z.array(z.string()).optional(),
+  seoKeywords: z.array(z.string()).optional(),
+  staticPageUrl: z.string().optional(),
   displayOrder: z.string().optional(),
   isFeatured: z.boolean().optional(),
 });
