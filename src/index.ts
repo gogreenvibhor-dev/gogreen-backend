@@ -14,7 +14,9 @@ import uploadRoutes from './routes/upload.js';
 import settingsRoutes from './routes/settings.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
+
 import youtubeRoutes from './routes/youtube.routes.js';
+import homePopupRoutes from './routes/home-popup.routes.js';
 import { authenticateToken, requireAdmin, requireEditor } from './middleware/auth.middleware.js';
 import logger, { requestLogger, errorLogger } from './utils/logger.js';
 
@@ -71,8 +73,10 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/contact', contactRoutes);
+
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/youtube-videos', youtubeRoutes);
+app.use('/api/home-popup', homePopupRoutes);
 
 // Protected routes examples
 app.get('/api/admin/dashboard', authenticateToken, requireAdmin, (req, res) => {

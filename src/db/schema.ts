@@ -240,3 +240,16 @@ export const youtubeVideos = pgTable('youtube_videos', {
 
 export type YoutubeVideo = typeof youtubeVideos.$inferSelect;
 export type NewYoutubeVideo = typeof youtubeVideos.$inferInsert;
+
+// Home Popups table for managing homepage entry popups
+export const homePopups = pgTable('home_popups', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  imageUrl: text('image_url').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  startDate: timestamp('start_date'),
+  endDate: timestamp('end_date'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type HomePopup = typeof homePopups.$inferSelect;
+export type NewHomePopup = typeof homePopups.$inferInsert;
