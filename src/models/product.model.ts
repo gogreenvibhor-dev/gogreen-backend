@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
 import { products, productSpecifications } from '../db/schema.js';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc, asc, and, sql } from 'drizzle-orm';
 
 export interface Product {
   id: string;
@@ -54,7 +54,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: desc(products.displayOrder),
+      orderBy: asc(products.displayOrder),
     });
     return await query;
   }
@@ -93,7 +93,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: desc(products.displayOrder),
+      orderBy: asc(products.displayOrder),
     });
     return await query;
   }
@@ -106,7 +106,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: desc(products.displayOrder),
+      orderBy: asc(products.displayOrder),
       limit,
     });
     return await query;
