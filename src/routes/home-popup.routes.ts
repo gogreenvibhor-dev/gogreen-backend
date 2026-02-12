@@ -34,6 +34,7 @@ router.get('/', async (req, res) => {
 const createPopupSchema = z.object({
   imageUrl: z.string().url(),
   isActive: z.boolean().default(true),
+  link: z.string().url().optional().nullable(),
   startDate: z.string().datetime().optional().nullable(), // Expects ISO string
   endDate: z.string().datetime().optional().nullable(),
 });
@@ -45,6 +46,7 @@ router.post('/admin', authenticateToken, requireAdmin, async (req: AuthRequest, 
     const [newPopup] = await db.insert(homePopups).values({
       imageUrl: body.imageUrl,
       isActive: body.isActive,
+      link: body.link || null,
       startDate: body.startDate ? new Date(body.startDate) : null,
       endDate: body.endDate ? new Date(body.endDate) : null,
     }).returning();

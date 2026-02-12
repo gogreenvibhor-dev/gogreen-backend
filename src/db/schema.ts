@@ -247,6 +247,7 @@ export const homePopups = pgTable('home_popups', {
   id: uuid('id').defaultRandom().primaryKey(),
   imageUrl: text('image_url').notNull(),
   isActive: boolean('is_active').notNull().default(true),
+  link: varchar('link', { length: 500 }),
   startDate: timestamp('start_date'),
   endDate: timestamp('end_date'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

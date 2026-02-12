@@ -11,22 +11,21 @@ const __dirname = dirname(__filename);
 
 config({ path: path.resolve(__dirname, '.env.local') });
 
-async function diagnose() {
+async function applyMigration() {
   try {
-    console.log('🔍 Checking home_popups columns...');
+    console.log('🔄 Adding link column to home_popups table...');
     
-    const result = await db.execute(sql`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'home_popups';
+    await db.execute(sql`
+      ALTER TABLE home_popups 
+      ADD COLUMN IF NOT EXISTS link varchar(500);
     `);
     
-    console.log("Columns found:", result.rows);
+    console.log('✅ Migration completed successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Diagnosis failed:', error);
+    console.error('❌ Migration failed:', error);
     process.exit(1);
   }
 }
 
-diagnose();
+applyMigration();
