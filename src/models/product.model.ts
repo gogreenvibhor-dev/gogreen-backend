@@ -54,7 +54,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: asc(products.displayOrder),
+      orderBy: sql`CAST(NULLIF(trim(${products.displayOrder}), '') AS INTEGER) ASC NULLS LAST`,
     });
     return await query;
   }
@@ -93,7 +93,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: asc(products.displayOrder),
+      orderBy: sql`CAST(NULLIF(trim(${products.displayOrder}), '') AS INTEGER) ASC NULLS LAST`,
     });
     return await query;
   }
@@ -106,7 +106,7 @@ export class ProductModel {
           where: eq(productSpecifications.isActive, true),
         },
       },
-      orderBy: asc(products.displayOrder),
+      orderBy: sql`CAST(NULLIF(trim(${products.displayOrder}), '') AS INTEGER) ASC NULLS LAST`,
       limit,
     });
     return await query;

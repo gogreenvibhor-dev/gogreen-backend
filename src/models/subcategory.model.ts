@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
 import { subcategories } from '../db/schema.js';
-import { eq, desc, asc, and } from 'drizzle-orm';
+import { eq, desc, asc, and, sql } from 'drizzle-orm';
 
 export interface Subcategory {
   id: string;
@@ -30,9 +30,9 @@ export class SubcategoryModel {
 
   static async getAll(includeInactive = false): Promise<Subcategory[]> {
     if (includeInactive) {
-      return await db.select().from(subcategories).orderBy(asc(subcategories.displayOrder));
+      return await db.select().from(subcategories).orderBy(sql`CAST(NULLIF(trim(${subcategories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
     }
-    return await db.select().from(subcategories).where(eq(subcategories.isActive, true)).orderBy(asc(subcategories.displayOrder));
+    return await db.select().from(subcategories).where(eq(subcategories.isActive, true)).orderBy(sql`CAST(NULLIF(trim(${subcategories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
   }
 
   static async getById(id: string): Promise<Subcategory | null> {
@@ -47,13 +47,13 @@ export class SubcategoryModel {
 
   static async getByCategoryId(categoryId: string, includeInactive = false): Promise<Subcategory[]> {
     if (includeInactive) {
-      return await db.select().from(subcategories).where(eq(subcategories.categoryId, categoryId)).orderBy(asc(subcategories.displayOrder));
+      return await db.select().from(subcategories).where(eq(subcategories.categoryId, categoryId)).orderBy(sql`CAST(NULLIF(trim(${subcategories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
     }
     return await db
       .select()
       .from(subcategories)
       .where(and(eq(subcategories.categoryId, categoryId), eq(subcategories.isActive, true)))
-      .orderBy(asc(subcategories.displayOrder));
+      .orderBy(sql`CAST(NULLIF(trim(${subcategories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
   }
 
   static async update(id: string, data: Partial<Omit<Subcategory, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Subcategory | null> {

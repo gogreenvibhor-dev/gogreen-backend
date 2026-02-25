@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
 import { categories } from '../db/schema.js';
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, sql } from 'drizzle-orm';
 
 export interface Category {
   id: string;
@@ -28,9 +28,9 @@ export class CategoryModel {
 
   static async getAll(includeInactive = false): Promise<Category[]> {
     if (includeInactive) {
-      return await db.select().from(categories).orderBy(asc(categories.displayOrder));
+      return await db.select().from(categories).orderBy(sql`CAST(NULLIF(trim(${categories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
     }
-    return await db.select().from(categories).where(eq(categories.isActive, true)).orderBy(asc(categories.displayOrder));
+    return await db.select().from(categories).where(eq(categories.isActive, true)).orderBy(sql`CAST(NULLIF(trim(${categories.displayOrder}), '') AS INTEGER) ASC NULLS LAST`);
   }
 
   static async getById(id: string): Promise<Category | null> {
